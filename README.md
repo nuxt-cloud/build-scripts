@@ -1,6 +1,6 @@
 # Build Scripts
 
-Build scripts to build a language specific project and package it to a production ready compressed `app.tgz` artifact.
+Build scripts to build a language specific project and package it to a production ready compressed `.dist/app.tgz` artifact.
 
 To use the artifact one have to extract package in a clean directory and call `./start` script.
 

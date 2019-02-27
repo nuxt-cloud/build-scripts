@@ -30,9 +30,6 @@ export YARN_CACHE_DIR="$PWD/.cache/yarn"
 # Clean node_modules
 clean_node_modules
 
-# Remove old build
-rm app.tgz
-
 # .yarnclean
 if [ "$YARN" ] ; then
 # if [ ! -f .yarnclean ] ; then
@@ -130,6 +127,6 @@ else
 fi
 
 log "Create app.tgz"
-tar -czf ../app.tgz *
+tar -czf app.tgz *
 
 log "Done!"
