@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "node build",
+    "start": "node index"
+  },
+  "dependencies": {
+    "consola": "^2.5.6"
+  },
+  "devDependencies": {
+    "lodash.get": "^4.4.2"
+  }
+}

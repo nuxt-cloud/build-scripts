@@ -1,0 +1,129 @@
+#!/bin/sh
+
+log () { echo "\033[0;36m[BUILD]\033[0m $@"; }
+
+clean_node_modules() {
+  # Clean node_modules
+  if [ -d node_modules  ] ; then
+    log "Removing node_modules"
+    rm -rf node_modules
+  fi
+}
+
+# -------------------------------------
+# Stage 0: Prepare
+# -------------------------------------
+
+# Working directory
+export PWD=`pwd`
+log "Working directory: $PWD"
+
+# Detect if NPM is required
+test -e "package-lock.json" && NPM=1 || YARN=1
+test "$NPM" && log "Using NPM "|| log "Using Yarn"
+
+# Prepare cache
+log "Preparing cache"
+mkdir -p .cache .cache/node_modules_dev .cache/node_modules_prod .cache/yarn
+export YARN_CACHE_DIR="$PWD/.cache/yarn"
+
+# Clean node_modules
+clean_node_modules
+
+# Remove old build
+rm app.tgz
+
+# .yarnclean
+if [ "$YARN" ] ; then
+# if [ ! -f .yarnclean ] ; then
+  log "Creating .yarnclean"
+  cat << EOF >> .yarnclean
+*.yaml
+*.md
+*.lock
+*.d.ts
+LICENSE
+CHANGELOG
+EOF
+# fi
+fi
+
+# -------------------------------------
+# Stage 1: Install devDependencies
+# -------------------------------------
+export NODE_ENV=dev
+
+ln -s .cache/node_modules_dev node_modules
+
+log "Installing devDependencies"
+
+if [ "$NPM" ]; then
+  npm install
+else
+  yarn install \
+    --prefer-offline \
+    --frozen-lockfile \
+    --non-interactive \
+    --production=false \
+    --cache-folder="$YARN_CACHE_DIR"
+fi
+
+# -------------------------------------
+# Stage 2: Build
+# -------------------------------------
+export NODE_ENV=production
+
+log "Building project"
+
+if [ $NPM ]; then
+  npm run build
+else
+  yarn run build
+fi
+
+# -------------------------------------
+# Stage 3: Install dependencies
+# -------------------------------------
+
+# Clean node_modules
+clean_node_modules
+
+ln -s .cache/node_modules_prod node_modules
+
+log "Installing dependencies"
+
+if [ "$NPM" ]; then
+  npm install
+else
+  yarn install \
+    --prefer-offline \
+    --pure-lockfile  \
+    --non-interactive \
+    --production=true \
+    --cache-folder="$YARN_CACHE_DIR"
+fi
+
+# -------------------------------------
+# Stage 4: Package
+# -------------------------------------
+
+rm -rf .dist
+mkdir .dist
+rm node_modules
+cp -r * .dist
+cp -rf .cache/node_modules_prod .dist/node_modules
+
+cd .dist
+
+rm node_modules/.yarn-integrity
+
+echo "#/bin/sh" >> start
+chmod +x start
+
+if [ "$NPM" ]; then
+  echo "npm run start" >> start
+else
+  echo "yarn run start" >> start
+fi
+
+tar -cvzf ../app.tgz *
