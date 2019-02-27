@@ -107,10 +107,13 @@ fi
 # Stage 4: Package
 # -------------------------------------
 
+log "Copy project to .dist"
 rm -rf .dist
 mkdir .dist
 rm node_modules
 cp -r * .dist
+
+log "Copy node_modiles to .dist"
 cp -rf .cache/node_modules_prod .dist/node_modules
 
 cd .dist
@@ -126,4 +129,7 @@ else
   echo "yarn run start" >> start
 fi
 
-tar -cvzf ../app.tgz *
+log "Create app.tgz"
+tar -czf ../app.tgz *
+
+log "Done!"
