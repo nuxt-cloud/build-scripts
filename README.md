@@ -15,6 +15,12 @@ To use the artifact one have to extract package in a clean directory and call `.
 
 Builder for any Node.js project. Supports both yarn and npm.
 
+#### Usage
+
+```bash
+curl -sL https://raw.githubusercontent.com/nuxt-cloud/build-scripts/master/scripts/build-node | sh
+```
+
 #### Yarn Specific
 
 - `.yarnclean` file is auto generated to remove things like `.md` files from final `app.tgz`
